@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="სატვირთოები">
+<meta name="theme-color" content="#3B6D11">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icon-120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icon-76.png">
+<title>სატვირთოების მართვა</title>
+<style>
+:root {
+  --green: #3B6D11;
+  --green-light: #EAF3DE;
+  --green-mid: #C0DD97;
+  --red-light: #FCEBEB;
+  --red: #E24B4A;
+  --amber-bg: #FAEEDA;
+  --amber-border: #FAC775;
+  --amber-text: #412402;
+  --amber-label: #854F0B;
+  --border: #e0e0d8;
+  --bg: #f4f4ef;
+  --white: #ffffff;
+  --text: #1a1a1a;
+  --muted: #666;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
+/* TOP BAR */
+.topbar {
+  background: var(--green);
+  padding: calc(var(--safe-top) + 12px) 14px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.logo {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.logo svg { width: 20px; height: 20px; fill: #fff; }
+.clock {
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.topbar-row2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.counter-btns { display: flex; gap: 6px; margin-right: auto; }
+.cbtn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  line-height: 1;
+  -webkit-user-select: none;
+}
+.cbtn:active { background: rgba(255,255,255,0.3); }
+
+.btn {
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.btn:active { background: rgba(255,255,255,0.3); }
+.btn-red { background: rgba(226,75,74,0.25); border-color: rgba(226,75,74,0.6); }
+.btn-red:active { background: rgba(226,75,74,0.4); }
+
+/* TRUCKS */
+.trucks-wrap { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+.truck-card {
+  background: var(--white);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.truck-card.done { background: var(--green-light); border-color: var(--green-mid); }
+
+.truck-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.truck-card.done .truck-header { border-color: var(--green-mid); }
+
+.truck-num-wrap { flex: 1; }
+.truck-num-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+.truck-num {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+  padding: 0;
+}
+.truck-num::placeholder { color: #bbb; font-weight: 400; font-size: 14px; }
+.truck-num:focus { color: var(--green); }
+
+.done-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.done-toggle label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.done-checkbox { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; }
+
+.truck-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.info-row { display: flex; flex-direction: column; gap: 3px; }
+.field-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.info-input {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  width: 100%;
+}
+.info-input:focus { border-color: var(--green); background: #fff; }
+.truck-card.done .info-input { background: var(--green-light); border-color: var(--green-mid); }
+
+.checks-row { display: flex; gap: 8px; }
+
+.check-card {
+  flex: 1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background 0.2s, border-color 0.2s;
+}
+.check-card.red { background: var(--red-light); border-color: #f5c1c1; }
+.check-card.grn { background: var(--green-light); border-color: var(--green-mid); }
+
+.check-card-label { font-size: 12px; font-weight: 500; }
+.check-card.red .check-card-label { color: #A32D2D; }
+.check-card.grn .check-card-label { color: var(--green); }
+
+.chk { width: 20px; height: 20px; accent-color: var(--green); cursor: pointer; }
+
+/* STICKY NOTE */
+.sticky-wrap { padding: 0 12px 12px; }
+.sticky {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.sticky-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--amber-label);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: block;
+}
+.sticky textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--amber-text);
+  resize: none;
+  min-height: 100px;
+  line-height: 1.7;
+}
+
+/* SAFE AREA BOTTOM */
+.safe-bottom { height: calc(var(--safe-bottom) + 12px); }
+
+/* INSTALL BANNER */
+.install-banner {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 12px;
+  padding: 12px 14px;
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+}
+.install-banner.show { display: flex; }
+.install-icon { font-size: 28px; line-height: 1; }
+.install-text h3 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.install-text p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.install-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@media print {
+  .topbar, .install-banner { display: none !important; }
+  .trucks-wrap { padding: 0; gap: 6px; }
+  .truck-card { border-radius: 6px; page-break-inside: avoid; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-row1">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5" fill="#fff"/><circle cx="18.5" cy="18.5" r="2.5" fill="#fff"/></svg>
+      სატვირთოები
+    </div>
+    <span class="clock" id="clock"></span>
+  </div>
+  <div class="topbar-row2">
+    <div class="counter-btns">
+      <button class="cbtn" onclick="removeTruck()" aria-label="წაშლა">−</button>
+      <button class="cbtn" onclick="addTruck()" aria-label="დამატება">+</button>
+    </div>
+    <button class="btn" onclick="exportExcel()">📊 ექსელი</button>
+    <button class="btn" onclick="window.print()">🖨 Print</button>
+    <button class="btn btn-red" onclick="clearAll()">🗑 გასუფთავება</button>
+  </div>
+</div>
+
+<div id="install-banner" class="install-banner">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <h3>მთავარ ეკრანზე დაამატე</h3>
+    <p>Safari-ში: გააზიარე ↑ → "Add to Home Screen" — გახსნი როგორც აპლიკაცია</p>
+  </div>
+  <button class="install-close" onclick="dismissBanner()">×</button>
+</div>
+
+<div class="trucks-wrap" id="trucks-wrap"></div>
+
+<div class="sticky-wrap">
+  <div class="sticky">
+    <span class="sticky-label">📌 შენიშვნები</span>
+    <textarea id="sticky-text" placeholder="დღისთვის საჭირო ინფორმაცია..."></textarea>
+  </div>
+</div>
+
+<div class="safe-bottom"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const SK = 'truck_pwa_v2';
+const STICKY_K = 'truck_pwa_sticky_v2';
+const BANNER_K = 'truck_pwa_banner';
+
+function save() {
+  const data = [];
+  document.querySelectorAll('.truck-card').forEach(card => {
+    data.push({
+      num:  card.querySelector('.truck-num').value,
+      info: card.querySelector('.info-input').value,
+      fuel: card.querySelector('.chk-fuel').checked,
+      road: card.querySelector('.chk-road').checked,
+      done: card.querySelector('.chk-done').checked
+    });
+  });
+  try { localStorage.setItem(SK, JSON.stringify(data)); } catch(e) {}
+}
+
+function load() {
+  try { const d = localStorage.getItem(SK); return d ? JSON.parse(d) : null; } catch(e) { return null; }
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function makeCard(d) {
+  d = d || {};
+  const num  = d.num  || '';
+  const info = d.info || '';
+  const fuel = !!d.fuel;
+  const road = !!d.road;
+  const done = !!d.done;
+
+  const card = document.createElement('div');
+  card.className = 'truck-card' + (done ? ' done' : '');
+
+  card.innerHTML = `
+    <div class="truck-header">
+      <div class="truck-num-wrap">
+        <div class="truck-num-label">სატვირთო №</div>
+        <input class="truck-num" type="text" placeholder="GE-123-AB" value="${esc(num)}" inputmode="text">
+      </div>
+      <div class="done-toggle">
+        <input type="checkbox" class="done-checkbox chk-done" ${done?'checked':''}>
+        <label>დღის ტასკი</label>
+      </div>
+    </div>
+    <div class="truck-body">
+      <div class="info-row">
+        <div class="field-label">ინფორმაცია</div>
+        <input class="info-input" type="text" placeholder="სატვირთოს შესახებ ინფორმაცია..." value="${esc(info)}">
+      </div>
+      <div class="checks-row">
+        <label class="check-card ${fuel?'grn':'red'}">
+          <span class="check-card-label">⛽ საწვავი</span>
+          <input type="checkbox" class="chk chk-fuel" ${fuel?'checked':''}>
+        </label>
+        <label class="check-card ${road?'grn':'red'}">
+          <span class="check-card-label">🛣 გზა</span>
+          <input type="checkbox" class="chk chk-road" ${road?'checked':''}>
+        </label>
+      </div>
+    </div>
+  `;
+
+  const chkDone = card.querySelector('.chk-done');
+  const chkFuel = card.querySelector('.chk-fuel');
+  const chkRoad = card.querySelector('.chk-road');
+  const fuelCard = card.querySelectorAll('.check-card')[0];
+  const roadCard = card.querySelectorAll('.check-card')[1];
+
+  chkDone.addEventListener('change', function() {
+    card.classList.toggle('done', this.checked);
+    save();
+  });
+
+  chkFuel.addEventListener('change', function() {
+    fuelCard.className = 'check-card ' + (this.checked ? 'grn' : 'red');
+    save();
+  });
+
+  chkRoad.addEventListener('change', function() {
+    roadCard.className = 'check-card ' + (this.checked ? 'grn' : 'red');
+    save();
+  });
+
+  card.querySelector('.truck-num').addEventListener('input', save);
+  card.querySelector('.info-input').addEventListener('input', save);
+
+  return card;
+}
+
+function addTruck() {
+  document.getElementById('trucks-wrap').appendChild(makeCard(null));
+  save();
+}
+
+function removeTruck() {
+  const wrap = document.getElementById('trucks-wrap');
+  if (wrap.children.length > 1) {
+    wrap.removeChild(wrap.lastElementChild);
+    save();
+  }
+}
+
+function clearAll() {
+  if (!confirm('ყველა ჩანაწერი გასუფთავდეს?')) return;
+  const wrap = document.getElementById('trucks-wrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 3; i++) wrap.appendChild(makeCard(null));
+  save();
+}
+
+function exportExcel() {
+  const pad = n => String(n).padStart(2,'0');
+  const now = new Date();
+  const ds = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
+  const rows = [['სატვირთო №','ინფორმაცია','საწვავი','გზა','დღის ტასკი']];
+  document.querySelectorAll('.truck-card').forEach(card => {
+    rows.push([
+      card.querySelector('.truck-num').value,
+      card.querySelector('.info-input').value,
+      card.querySelector('.chk-fuel').checked ? '✓' : '✗',
+      card.querySelector('.chk-road').checked ? '✓' : '✗',
+      card.querySelector('.chk-done').checked ? '✓' : '✗'
+    ]);
+  });
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:18},{wch:35},{wch:10},{wch:8},{wch:14}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'სატვირთოები');
+  XLSX.writeFile(wb, `satvirthoebi_${ds}.xlsx`);
+}
+
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}  ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+function dismissBanner() {
+  document.getElementById('install-banner').classList.remove('show');
+  try { localStorage.setItem(BANNER_K, '1'); } catch(e) {}
+}
+
+function checkBanner() {
+  const isStandalone = window.navigator.standalone === true;
+  const dismissed = localStorage.getItem(BANNER_K);
+  if (!isStandalone && !dismissed) {
+    setTimeout(() => document.getElementById('install-banner').classList.add('show'), 1500);
+  }
+}
+
+(function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  const saved = load();
+  const wrap = document.getElementById('trucks-wrap');
+  if (saved && saved.length > 0) {
+    saved.forEach(d => wrap.appendChild(makeCard(d)));
+  } else {
+    for (let i = 0; i < 3; i++) wrap.appendChild(makeCard(null));
+  }
+
+  const sticky = document.getElementById('sticky-text');
+  try { sticky.value = localStorage.getItem(STICKY_K) || ''; } catch(e) {}
+  sticky.addEventListener('input', () => {
+    try { localStorage.setItem(STICKY_K, sticky.value); } catch(e) {}
+  });
+
+  checkBanner();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
